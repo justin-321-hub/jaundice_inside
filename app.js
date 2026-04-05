@@ -253,7 +253,7 @@ async function sendText(text, retryCounts = {}) {
   // ==========================================
 
   try {
-    const res = await fetch(api("/api/chat"), {
+    const res = await fetch(api("/api/chat-clinical"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
