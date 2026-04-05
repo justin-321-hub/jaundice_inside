@@ -163,8 +163,8 @@ function render() {
     const avatar = document.createElement("img");
     avatar.className = "avatar";
     avatar.src = isUser
-      ? 'https://raw.githubusercontent.com/justin-321-hub/jaundice/refs/heads/main/assets/jaundice_user.jpg'
-      : 'https://raw.githubusercontent.com/justin-321-hub/jaundice/refs/heads/main/assets/jaundice_chatbot.jpg';
+      ? './assets/jaundice_user.jpg'
+      : './assets/jaundice_chatbot.jpg';
     avatar.alt = isUser ? "you" : "bot";
 
     const bubble = document.createElement("div");
