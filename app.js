@@ -8,7 +8,7 @@
    Backend API Domain
 ========================= */
 
-const API_BASE = "https://jaundice-server.onrender.com";
+const API_BASE = "https://jaundice-inside-server.onrender.com";
 const api = (p) => `${API_BASE}${p}`;
 
 /* =========================
