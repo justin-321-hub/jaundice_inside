@@ -410,7 +410,7 @@ window.addEventListener("load", () => elInput?.focus());
 messages.push({
   id: uid(),
   role: "assistant",
-  text: "<p><span style=color: #0056b3; font-weight: bold;>您好！歡迎使用嬰兒黃疸衛教資訊服務 🏥</span> 寶寶皮膚黃黃的讓您擔心了嗎？我是您的專屬小幫手，可以為您解答關於生理性/病理性黃疸、母乳哺餵與大便顏色觀察等衛教知識。請問今天想了解什麼呢？📋🩺</p>",
+  text: "<p><span style=color: #0056b3; font-weight: bold;>您好！歡迎使用新生兒黃疸衛教資訊服務 🏥</span> 寶寶皮膚黃黃的讓您擔心了嗎？我是您的專屬小幫手，可以為您解答關於生理性/病理性黃疸、母乳哺餵與大便顏色觀察等衛教知識。請問今天想了解什麼呢？📋🩺</p>",
   
   ts: Date.now(),
 });
