@@ -26,6 +26,20 @@ if (!clientId) {
 }
 
 /* =========================
+   Flutter WebView: babyId
+========================= */
+
+const BABY_ID_KEY = "babyID";
+let babyId = localStorage.getItem(BABY_ID_KEY) || null;
+
+window.setBabyId = function (id) {
+  if (id && typeof id === "string" && id.trim()) {
+    babyId = id.trim();
+    localStorage.setItem(BABY_ID_KEY, babyId);
+  }
+};
+
+/* =========================
    DOM References
 ========================= */
 
@@ -262,6 +276,7 @@ async function sendText(text, retryCounts = {}) {
       body: JSON.stringify({
         text: contentToSend,
         clientId,
+        babyId: babyId || null,
         language: "繁體中文",
         role: "user"
       }),
