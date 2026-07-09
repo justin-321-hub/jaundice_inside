@@ -43,6 +43,15 @@
       <button id="btnSend" class="btn btn-primary">送出</button>
     </footer>
 
+    <div id="dangerAlertModal" class="danger-modal hidden" role="alertdialog" aria-modal="true" aria-labelledby="dangerAlertTitle">
+      <div class="danger-modal-box">
+        <div class="danger-modal-icon">⚠️</div>
+        <h2 id="dangerAlertTitle">系統偵測到您輸入的內容可能涉及危險情況</h2>
+        <p>為了您的安全，對話已暫時中斷。如果您遇到緊急狀況，請尋求專業協助。</p>
+        <button id="dangerAlertConfirm" class="btn-danger-confirm">我知道了，繼續使用</button>
+      </div>
+    </div>
+
     <script src="marked.umd.js"></script>
     <script src="dompurify.umd.js"></script>
     <script src="./app.js"></script>

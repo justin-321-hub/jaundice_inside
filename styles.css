@@ -274,3 +274,36 @@ body {
   .composer { gap: 6px; padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
   .btn { padding: 0 12px; }
 }
+
+/* =========================================
+   9. 危險關鍵字警示視窗 (Danger Alert Modal)
+   ========================================= */
+.danger-modal {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(127, 29, 29, .55);
+  padding: 20px;
+}
+.danger-modal-box {
+  width: 100%; max-width: 420px;
+  background: #FFFFFF;
+  border: 2px solid #DC2626;
+  border-radius: 16px;
+  padding: 28px 22px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+.danger-modal-icon { font-size: 40px; margin-bottom: 10px; }
+.danger-modal-box h2 {
+  color: #B91C1C; font-size: 17px; font-weight: 700;
+  margin: 0 0 10px; line-height: 1.5;
+}
+.danger-modal-box p {
+  color: #374151; font-size: 14px; line-height: 1.6; margin: 0 0 20px;
+}
+.btn-danger-confirm {
+  background: #DC2626; color: #fff; border: none;
+  height: 44px; padding: 0 28px; border-radius: 20px;
+  font-weight: 600; font-size: 15px; cursor: pointer;
+}
+.btn-danger-confirm:hover { background: #B91C1C; }

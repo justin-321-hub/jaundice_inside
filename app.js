@@ -81,12 +81,55 @@ const elMessages = document.getElementById("messages");
 const elInput = document.getElementById("txtInput");
 const elBtnSend = document.getElementById("btnSend");
 const elThinking = document.getElementById("thinking");
+const elDangerModal = document.getElementById("dangerAlertModal");
+const elDangerConfirm = document.getElementById("dangerAlertConfirm");
 
 /* =========================
    Message State
 ========================= */
 
 const messages = [];
+
+/* =========================
+   危險關鍵字攔截機制
+   ⚠️ 清單尚未完善，目前僅供測試，之後會再擴充
+========================= */
+
+const DANGEROUS_KEYWORDS = ["自殺"];
+
+function containsDangerousKeyword(text) {
+  if (!text || typeof text !== "string") return false;
+  return DANGEROUS_KEYWORDS.some((kw) => text.includes(kw));
+}
+
+function isDangerLocked() {
+  return !!elDangerModal && !elDangerModal.classList.contains("hidden");
+}
+
+function triggerDangerAlert() {
+  if (elInput) {
+    elInput.value = "";
+    elInput.disabled = true;
+  }
+  if (elBtnSend) elBtnSend.disabled = true;
+  elDangerModal?.classList.remove("hidden");
+  elDangerConfirm?.focus();
+}
+
+function dismissDangerAlert() {
+  elDangerModal?.classList.add("hidden");
+  if (elInput) elInput.disabled = false;
+  if (elBtnSend) elBtnSend.disabled = false;
+  elInput?.focus();
+}
+
+elInput?.addEventListener("input", () => {
+  if (containsDangerousKeyword(elInput.value)) {
+    triggerDangerAlert();
+  }
+});
+
+elDangerConfirm?.addEventListener("click", dismissDangerAlert);
 
 /* =========================
    全域狀態管理器 (核彈級防護)
@@ -116,7 +159,7 @@ function setThinking(on) {
   if (on) {
     if (elBtnSend) elBtnSend.disabled = true;
     if (elInput) elInput.disabled = true;
-  } else {
+  } else if (!isDangerLocked()) {
     if (elBtnSend) elBtnSend.disabled = false;
     if (elInput) elInput.disabled = false;
     elInput?.focus();
