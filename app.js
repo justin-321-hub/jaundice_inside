@@ -40,6 +40,32 @@ window.setBabyId = function (id) {
 };
 
 /* =========================
+   Flutter WebView: clinicianId
+========================= */
+
+const CLINICIAN_ID_KEY = "clinicianID";
+let clinicianId = localStorage.getItem(CLINICIAN_ID_KEY) || null;
+
+window.setClinicianId = function (id) {
+  if (id && typeof id === "string" && id.trim()) {
+    clinicianId = id.trim();
+    localStorage.setItem(CLINICIAN_ID_KEY, clinicianId);
+  }
+};
+
+/* =========================
+   Flutter WebView: Firebase ID Token
+========================= */
+
+let authToken = null;
+
+window.setAuthToken = function (token) {
+  if (token && typeof token === "string" && token.trim()) {
+    authToken = token.trim();
+  }
+};
+
+/* =========================
    DOM References
 ========================= */
 
@@ -272,11 +298,13 @@ async function sendText(text, retryCounts = {}) {
       headers: {
         "Content-Type": "application/json",
         "X-Client-Id": clientId,
+        ...(authToken ? { "Authorization": `Bearer ${authToken}` } : {}),
       },
       body: JSON.stringify({
         text: contentToSend,
         clientId,
         babyId: babyId || null,
+        clinicianId: clinicianId || null,
         language: "繁體中文",
         role: "user"
       }),
