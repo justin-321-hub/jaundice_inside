@@ -39,6 +39,14 @@ window.setBabyId = function (id) {
   }
 };
 
+// Called by the App when this session has no specific baby in context
+// (e.g. clinician home page). Clears any babyId left over in localStorage
+// from a previous WebView session sharing the same origin storage.
+window.clearBabyId = function () {
+  babyId = null;
+  localStorage.removeItem(BABY_ID_KEY);
+};
+
 /* =========================
    Flutter WebView: clinicianId
 ========================= */
