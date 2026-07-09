@@ -155,34 +155,48 @@ function isHtmlFormat(text) {
 
 /**
  * 判斷並轉換 Markdown 為 HTML
+ * 不論走哪條路徑（原始 HTML 直傳 / marked 轉換 / escapeHtml 備援），
+ * 最終輸出一律經過 DOMPurify.sanitize() 才回傳，避免任何一條路徑漏未清洗的內容流入 innerHTML。
  */
 function processContent(text) {
   if (!text || typeof text !== 'string') return '';
-  if (isHtmlFormat(text)) return text;
 
-  const markdownPatterns = [
-    /^#{1,6}\s/m,
-    /\*\*.*\*\*/,
-    /\*.*\*/,
-    /\[.*\]\(.*\)/,
-    /^\s*[-*+]\s/m,
-    /^\s*\d+\.\s/m,
-    /```[\s\S]*```/,
-    /`[^`]+`/,
-  ];
+  let html;
 
-  const hasMarkdown = markdownPatterns.some(pattern => pattern.test(text));
+  if (isHtmlFormat(text)) {
+    html = text;
+  } else {
+    const markdownPatterns = [
+      /^#{1,6}\s/m,
+      /\*\*.*\*\*/,
+      /\*.*\*/,
+      /\[.*\]\(.*\)/,
+      /^\s*[-*+]\s/m,
+      /^\s*\d+\.\s/m,
+      /```[\s\S]*```/,
+      /`[^`]+`/,
+    ];
 
-  if (hasMarkdown && typeof marked !== 'undefined') {
-    try {
-      return marked.parse(text);
-    } catch (err) {
-      console.error('Markdown parsing error:', err);
-      return escapeHtml(text).replace(/\n/g, '<br>');
+    const hasMarkdown = markdownPatterns.some(pattern => pattern.test(text));
+
+    if (hasMarkdown && typeof marked !== 'undefined') {
+      try {
+        html = marked.parse(text);
+      } catch (err) {
+        console.error('Markdown parsing error:', err);
+        html = escapeHtml(text).replace(/\n/g, '<br>');
+      }
+    } else {
+      html = escapeHtml(text).replace(/\n/g, '<br>');
     }
   }
 
-  return escapeHtml(text).replace(/\n/g, '<br>');
+  if (typeof DOMPurify === 'undefined') {
+    console.error('DOMPurify not loaded — falling back to plain-text rendering.');
+    return escapeHtml(text).replace(/\n/g, '<br>');
+  }
+
+  return DOMPurify.sanitize(html);
 }
 
 /**
