@@ -1,2 +1,22 @@
-CLAUDE.md
-TODO.md
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Env / secrets
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+
+# Node (if tooling is ever added)
+node_modules/
