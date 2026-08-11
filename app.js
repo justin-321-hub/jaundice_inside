@@ -400,6 +400,10 @@ async function sendText(text, retryCounts = {}) {
       }
     }
 
+    if (res.status === 429) {
+      throw new Error("請求太頻繁，請稍後再試");
+    }
+
     if (!res.ok) {
       throw new Error("Sorry, the network is unstable. Please try again later.");
     }
