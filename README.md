@@ -16,6 +16,7 @@
 - **重試機制**：針對三種失敗情境（HTTP 200 但回覆內容為空、回覆內容包含未完成處理標記、HTTP 5xx／401／404 錯誤）各自提供一次自動重試，重試失敗才顯示錯誤訊息給使用者。
 - **請求防抖與防重入**：`window.isChatFetching` 防止使用者連點造成重複送出；`window.globalReqId` 確保逾時的暫時提示訊息（4 秒／8 秒）不會在新請求送出後才過期顯示。
 - **WebView 橋接**：供原生 App（Flutter）注入 `babyId`、`clinicianId`、Firebase `authToken`，並提供 `clearBabyId()` 清除殘留的 `babyId`，避免同一 WebView 來源的舊 session 資料外洩到新 session（例如切回無特定病患情境的醫護首頁）。
+- **Header 可收合**：標題區域下方有一條低調的細把手（▲／▼），點擊即可隱藏／展開整個 header（含衛教提醒），讓出更多對話空間。
 - **行動裝置優先的 RWD**：處理 iOS 安全區域（`safe-area-inset`）、動態視窗高度（`dvh`）、鍵盤彈出等手機瀏覽情境。
 - **內容安全政策（CSP）**：`index.html` 內建 CSP，限制腳本／樣式／連線／圖片來源，降低前端被注入攻擊的風險。
 
@@ -73,6 +74,13 @@
 | `authToken` | 僅存於記憶體 | 由 App WebView 呼叫 `window.setAuthToken(token)` 注入，重新整理後需重新注入 |
 
 詳細的 WebView 注入時機與 Flutter 端範例程式碼，見 [`docs/flutter-webview-baby-id.md`](docs/flutter-webview-baby-id.md)（文件撰寫時間早於 `clearBabyId`／`clinicianId`／`setAuthToken` 的加入，僅供設計脈絡參考）。
+
+### Header 收合
+
+`#btnHeaderToggle` 位於 `#topbar` 正下方，點擊後切換 `#topbar` 的 `.hidden` class：
+- 收起時 header 消失，把手移至頁面最頂端並變成 ▼；展開時為 ▲。
+- 同步更新 `aria-expanded` 與 `aria-label`。
+- 收合狀態**不會**寫入 `localStorage`，每次載入都是展開，確保衛教提醒預設可見。
 
 ### 輸入前處理
 
