@@ -86,6 +86,25 @@ body {
 }
 
 /* =========================================
+   2c. Header 收合把手
+   ========================================= */
+.header-toggle {
+  flex-shrink: 0;
+  width: 100%;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid #FEF08A;
+  background: var(--panel);
+  color: #92400E;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+.header-toggle:hover { background: #FEF3C7; }
+.header-toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+/* =========================================
    3. 主體與訊息清單
    ========================================= */
 .main {

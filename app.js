@@ -83,6 +83,8 @@ const elBtnSend = document.getElementById("btnSend");
 const elThinking = document.getElementById("thinking");
 const elDangerModal = document.getElementById("dangerAlertModal");
 const elDangerConfirm = document.getElementById("dangerAlertConfirm");
+const elTopbar = document.getElementById("topbar");
+const elHeaderToggle = document.getElementById("btnHeaderToggle");
 
 /* =========================
    Message State
@@ -514,6 +516,14 @@ elInput?.addEventListener("keydown", (e) => {
     e.preventDefault();
     sendText();
   }
+});
+
+// Header collapse toggle (state not persisted; always expanded on load)
+elHeaderToggle?.addEventListener("click", () => {
+  const collapsed = elTopbar.classList.toggle("hidden");
+  elHeaderToggle.textContent = collapsed ? "▼" : "▲";
+  elHeaderToggle.setAttribute("aria-expanded", String(!collapsed));
+  elHeaderToggle.setAttribute("aria-label", collapsed ? "展開頂部標題區域" : "隱藏頂部標題區域");
 });
 
 window.addEventListener("load", () => elInput?.focus());
