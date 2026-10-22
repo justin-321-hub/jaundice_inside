@@ -109,6 +109,7 @@ function isDangerLocked() {
 }
 
 function triggerDangerAlert() {
+  if (isDangerLocked()) return;
   if (elInput) {
     elInput.value = "";
     elInput.disabled = true;
@@ -125,10 +126,25 @@ function dismissDangerAlert() {
   elInput?.focus();
 }
 
-elInput?.addEventListener("input", () => {
+// IME 組字狀態：組字中途的內容尚未確認，不攔截，避免破壞輸入法狀態
+let isComposing = false;
+
+function checkDangerInput() {
   if (containsDangerousKeyword(elInput.value)) {
     triggerDangerAlert();
   }
+}
+
+elInput?.addEventListener("compositionstart", () => {
+  isComposing = true;
+});
+elInput?.addEventListener("compositionend", () => {
+  isComposing = false;
+  checkDangerInput();
+});
+elInput?.addEventListener("input", (e) => {
+  if (e.isComposing || isComposing) return;
+  checkDangerInput();
 });
 
 elDangerConfirm?.addEventListener("click", dismissDangerAlert);
@@ -298,6 +314,12 @@ function render() {
 async function sendText(text, retryCounts = {}) {
   const content = (text ?? elInput?.value ?? "").trim();
   if (!content) return;
+
+  // 與 input 事件共用同一套偵測，避免非打字來源（程式塞值、直接呼叫）繞過攔截
+  if (containsDangerousKeyword(content)) {
+    triggerDangerAlert();
+    return;
+  }
 
   const contentToSend = processQuestionMarks(content);
 
@@ -513,6 +535,8 @@ async function sendText(text, retryCounts = {}) {
 elBtnSend?.addEventListener("click", () => sendText());
 elInput?.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
+    // 組字中的 Enter 是「確認選字」，不是送出（keyCode 229 為部分瀏覽器的組字訊號）
+    if (e.isComposing || e.keyCode === 229) return;
     e.preventDefault();
     sendText();
   }
