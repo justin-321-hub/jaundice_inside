@@ -215,6 +215,31 @@ function isHtmlFormat(text) {
 }
 
 /**
+ * 機器人回覆中 <img> 的來源白名單（與 index.html CSP 的 img-src 保持一致，修改時兩邊要同步）
+ * 不在白名單的圖片（例如 LLM 搜尋時附上的外部圖片網址）會被 CSP 擋下，
+ * 只留下壞圖示，因此在 DOMPurify 清洗時直接移除該 <img>。
+ */
+const ALLOWED_IMG_ORIGINS = ["https://jaundice.smartchat.live"];
+
+function isAllowedImgSrc(src) {
+  if (!src) return false;
+  try {
+    const url = new URL(src, window.location.href);
+    return url.origin === window.location.origin || ALLOWED_IMG_ORIGINS.includes(url.origin);
+  } catch (err) {
+    return false;
+  }
+}
+
+if (typeof DOMPurify !== 'undefined') {
+  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+    if (node.tagName === 'IMG' && !isAllowedImgSrc(node.getAttribute('src') || '')) {
+      node.remove();
+    }
+  });
+}
+
+/**
  * 判斷並轉換 Markdown 為 HTML
  * 不論走哪條路徑（原始 HTML 直傳 / marked 轉換 / escapeHtml 備援），
  * 最終輸出一律經過 DOMPurify.sanitize() 才回傳，避免任何一條路徑漏未清洗的內容流入 innerHTML。
