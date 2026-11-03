@@ -101,6 +101,23 @@
 - 清空並鎖住輸入框、鎖住送出鍵
 - 顯示 `#dangerAlertModal` 警示視窗，引導使用者尋求專業協助
 - 使用者點擊「我知道了，繼續使用」後才解除鎖定
+- 呼叫 `reportDangerEvent()` 上報事件（見下）
+
+**事件上報（寫入 Supabase，經後端 `POST /api/danger-event`）**：行為由 `DANGER_REPORT_CONFIG` 控制。
+
+| 設定 | 預設 | 說明 |
+|---|---|---|
+| `enabled` | `true` | 需後端與資料表已就緒；設為 `false` 可關閉上報 |
+| `endpoint` | `/api/danger-event` | 後端端點路徑 |
+| `includeUserId` | `true` | 送出 `clinicianId`（App 未注入時為 `null`） |
+| `includeClientId` | `true` | 送出 `clientId` |
+| `includeBabyId` | `true` | 送出 `babyId` |
+| `includeText` | `true` | `false` 則不送輸入原文，只送命中的關鍵字 |
+
+- 上報在清空輸入框前執行，且位於「已鎖定則 return」之後，同一次輸入不會重複上報
+- fire-and-forget：失敗只寫 `console.warn`，不影響警示視窗
+- 請求帶 `X-Client-Id`，有 token 時也帶 `Authorization`；`source` 固定為 `"clinician"`
+- 後端欄位與資料表說明見 `jaundice_server` 的 README
 
 ### 暫時訊息與併發防護
 

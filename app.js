@@ -97,19 +97,73 @@ const messages = [];
    ⚠️ 清單尚未完善，目前僅供測試，之後會再擴充
 ========================= */
 
-const DANGEROUS_KEYWORDS = ["自殺"];
+const DANGEROUS_KEYWORDS = ["抽搐", "抽筋", "痙攣", "癲癇", "抽蓄", "抽畜", "seizure", "convulsion", "全身僵硬", "全身僵直", "身體僵直", "手腳不停抖動", "全身一直抖", "手腳一直抖", "沒呼吸", "沒有呼吸", "不呼吸", "停止呼吸", "呼吸暫停", "呼吸停", "呼吸困難", "呼吸急促", "呼吸很喘", "喘不過氣", "喘很大力", "憋氣", "屏氣", "窒息", "胸口凹陷", "肋骨凹陷", "鼻翼搧動", "鼻翼煽動", "一直呻吟", "呻吟聲", "喘氣聲", "發紫", "發青", "發紺", "紫紺", "嘴唇紫", "嘴唇青", "嘴唇發黑", "臉色發青", "臉變紫", "臉色發紫", "全身發紫", "身體發紫", "全身發青", "叫不醒", "喚不醒", "很難叫醒", "喚醒不了", "叫都叫不起來", "昏睡", "昏迷", "意識不清", "沒有反應", "沒反應", "反應很差", "軟趴趴", "軟綿綿", "全身癱軟", "癱軟", "像布娃娃", "無力下垂", "眼神呆滯", "眼睛上吊", "眼球上翻", "落日眼", "翻白眼", "角弓反張", "弓起來", "弓著背", "身體拱起", "背拱起來", "反弓", "頭往後仰", "脖子後仰", "頸部後仰", "尖叫", "哭聲尖銳", "哭聲很尖", "哭聲高亢", "哭聲淒厲", "哭聲很怪", "哭聲不一樣", "高頻哭", "哭得很尖", "吐血", "便血", "血便", "大量出血", "流很多血", "噎到", "哽到", "被悶住", "臉被蓋住", "摔下來", "掉下床", "從床上掉", "跌落", "撞到頭", "頭撞到", "搖晃寶寶", "搖了寶寶", "搖寶寶", "不想要寶寶", "想把寶寶丟掉", "想悶死", "想傷害寶寶", "忍不住打他", "忍不住打寶寶", "打了寶寶", "打了他", "後悔生下", "恨寶寶", "想打他", "想打她", "想打寶寶", "想打小孩", "想打孩子", "想打嬰兒", "想掐他", "想掐她", "想掐寶寶", "想掐小孩", "想掐孩子", "想掐嬰兒", "想摔他", "想摔她", "想摔寶寶", "想摔小孩", "想摔孩子", "想摔嬰兒", "想丟他", "想丟她", "想丟寶寶", "想丟小孩", "想丟孩子", "想丟嬰兒", "想搖他", "想搖她", "想搖寶寶", "想搖小孩", "想搖孩子", "想搖嬰兒", "想悶他", "想悶她", "想悶寶寶", "想悶小孩", "想悶孩子", "想悶嬰兒", "想傷害他", "想傷害她", "想傷害寶寶", "想傷害小孩", "想傷害孩子", "想傷害嬰兒", "想死", "不想活", "活不下去", "想自殺", "想結束生命", "想傷害自己", "想消失", "不如死了", "想跳樓", "家暴", "被家暴", "虐待", "老公打", "先生打", "老公打我", "家人打寶寶", "保母打", "保姆打", "被打"];
+
+function findDangerousKeyword(text) {
+  if (!text || typeof text !== "string") return null;
+  return DANGEROUS_KEYWORDS.find((kw) => text.includes(kw)) || null;
+}
 
 function containsDangerousKeyword(text) {
-  if (!text || typeof text !== "string") return false;
-  return DANGEROUS_KEYWORDS.some((kw) => text.includes(kw));
+  return findDangerousKeyword(text) !== null;
+}
+
+/* =========================
+   危險事件上報（寫入 Supabase，經後端 API）
+   需後端 POST /api/danger-event 與 Supabase danger_events 表已就緒；
+   要送哪些 ID／是否送完整內容，只需調整此設定（enabled: false 可關閉上報）
+========================= */
+
+const DANGER_REPORT_CONFIG = {
+  enabled: true,
+  endpoint: "/api/danger-event",
+  includeUserId: true, // clinicianId
+  includeClientId: true,
+  includeBabyId: true,
+  includeText: true, // false 則只送命中的關鍵字
+};
+
+function reportDangerEvent({ text, keyword }) {
+  const cfg = DANGER_REPORT_CONFIG;
+  if (!cfg.enabled) return;
+
+  try {
+    const payload = {
+      source: "clinician",
+      keyword,
+      ts: Date.now(),
+    };
+    if (cfg.includeText) payload.text = text;
+    if (cfg.includeUserId) payload.userId = clinicianId || null;
+    if (cfg.includeClientId) payload.clientId = clientId;
+    if (cfg.includeBabyId) payload.babyId = babyId || null;
+
+    const headers = {
+      "Content-Type": "application/json",
+      "X-Client-Id": clientId,
+    };
+    if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+
+    // fire-and-forget：上報失敗不得影響警示視窗與輸入鎖定
+    fetch(api(cfg.endpoint), {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+      keepalive: true,
+    }).catch((err) => console.warn("danger report failed:", err));
+  } catch (err) {
+    console.warn("danger report failed:", err);
+  }
 }
 
 function isDangerLocked() {
   return !!elDangerModal && !elDangerModal.classList.contains("hidden");
 }
 
-function triggerDangerAlert() {
+function triggerDangerAlert(text) {
   if (isDangerLocked()) return;
+  // 必須在清空輸入框前取得內容
+  reportDangerEvent({ text, keyword: findDangerousKeyword(text) });
   if (elInput) {
     elInput.value = "";
     elInput.disabled = true;
@@ -131,7 +185,7 @@ let isComposing = false;
 
 function checkDangerInput() {
   if (containsDangerousKeyword(elInput.value)) {
-    triggerDangerAlert();
+    triggerDangerAlert(elInput.value);
   }
 }
 
@@ -342,7 +396,7 @@ async function sendText(text, retryCounts = {}) {
 
   // 與 input 事件共用同一套偵測，避免非打字來源（程式塞值、直接呼叫）繞過攔截
   if (containsDangerousKeyword(content)) {
-    triggerDangerAlert();
+    triggerDangerAlert(content);
     return;
   }
 
